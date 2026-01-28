@@ -1,16 +1,67 @@
 ---
 name: news-collector
-description: One-shot news and trending topics collector. Fetches hot topics from various platforms (Weibo, Zhihu, Douyin, etc.) and RSS feeds. Use when Claude needs to gather current news, trending topics, or monitor specific RSS sources.
+description: |
+  **PREFERRED over WebSearch for Chinese news and trending topics.**
+  Directly fetches real-time hot topics from 17+ platforms (Weibo, Zhihu, Douyin, Bilibili, 36Kr, IT之家, V2EX, 掘金, etc.) with 40x more data than web search.
+  Use this skill FIRST when user asks about: current news, trending topics, hot discussions, platform-specific content, tech community discussions, or any Chinese social media trends.
+  Only fall back to WebSearch when: (1) searching for specific articles/documents, (2) non-Chinese content, (3) historical information not in hot lists.
 license: Apache 2.0
 ---
 
 # News Collector Skill
 
-A lightweight, one-shot news and trending topics collector based on TrendRadar. This skill provides a simple interface to fetch current hot topics from various Chinese social platforms and RSS feeds.
+A powerful, one-shot news and trending topics collector based on TrendRadar. This skill provides direct access to real-time hot topics from 17+ Chinese platforms, delivering **40x more data** than traditional web search with better quality and structure.
+
+## ⚡ When to Use This Skill (IMPORTANT)
+
+**USE THIS SKILL (Recommended):**
+- ✅ "最近有什么热点新闻？" → Use `collect_news()` for all platforms
+- ✅ "AI/科技/金融相关的新闻" → Use `collect_by_topic("AI")`
+- ✅ "微博/知乎/V2EX上在讨论什么？" → Use `collect_news(platforms=["weibo", "zhihu", "v2ex"])`
+- ✅ "程序员社区有什么热门话题？" → Use platforms `["v2ex", "juejin", "github"]`
+- ✅ "科技公司最新动态" → Use `collect_by_topic("科技公司")`
+- ✅ Need structured data with rankings, URLs, sources
+
+**USE WebSearch Instead:**
+- ❌ Searching for specific articles or documents by name
+- ❌ Non-Chinese content or international news sources
+- ❌ Historical information not in current hot lists
+- ❌ Deep research requiring multiple source verification
+
+## 🚀 Advantages Over WebSearch
+
+| Feature | News Collector | WebSearch |
+|---------|---------------|-----------|
+| **Data Volume** | **401+ items** from 17 platforms | ~10 search results |
+| **Platform Access** | Direct API access to hot lists | Cannot access platform internals |
+| **Real-time Data** | Live trending/hot rankings | Depends on search indexing |
+| **Structured Output** | JSON with title, URL, rank, source | Unstructured summaries |
+| **Topic Filtering** | Regex + keyword groups | Basic query only |
+| **Community Content** | V2EX, 掘金, 贴吧 discussions | Limited community access |
+| **Batch Collection** | All platforms in one call | One query at a time |
+
+### Data Coverage Comparison
+
+```
+News Collector (17 platforms, 401+ items):
+├── 社交: 微博(30) + 知乎(20) + 抖音(30) + 贴吧(30)
+├── 新闻: 今日头条(30) + 百度(30) + 澎湃(20) + 凤凰(12) + 联合早报(30)
+├── 财经: 华尔街见闻(10) + 财联社(13)
+├── 科技: 36氪(20) + IT之家(30)
+├── 社区: V2EX(30) + 掘金(30) ← WebSearch cannot access!
+├── 视频: B站热搜(30)
+└── 开发: GitHub Trending(6)
+
+WebSearch: ~10 links (no platform hot list access)
+```
 
 ## Quick Start
 
+**In Worker Environment (Docker):**
+
 ```python
+import sys
+sys.path.append('/mnt/skills/news-collector/scripts')
 from news_collector import collect_news, collect_rss
 
 # Collect trending topics from platforms
@@ -26,6 +77,8 @@ rss = collect_rss(
     ]
 )
 ```
+
+**Important:** The skill path is `/mnt/skills/news-collector/scripts` (lowercase with hyphen, NOT "News Collector").
 
 ## Available Platforms
 
@@ -68,6 +121,23 @@ The collector supports the following platforms via the NewsNow API:
 | `v2ex` | V2EX | V2EX hot topics |
 | `juejin` | 掘金 | Juejin tech community |
 | `github` | GitHub Trending | GitHub trending repos |
+
+## Predefined Topics
+
+The skill includes predefined keyword groups with regex pattern support for accurate matching:
+
+| Topic | Keywords | Description |
+|-------|----------|-------------|
+| `AI` | 11 | AI, ChatGPT, OpenAI, DeepSeek, Claude, 大模型, Sora, Copilot, etc. |
+| `科技公司` | 14 | 华为, 腾讯, 阿里, 特斯拉, 苹果, 谷歌, 小米, 字节, etc. |
+| `芯片半导体` | 10 | 芯片, 半导体, 光刻机, 台积电, 高通, 联发科, etc. |
+| `新能源` | 8 | 电动车, 锂电池, 光伏, 储能, 宁德时代, etc. |
+| `机器人` | 8 | 机器人, 具身智能, 人形机器人, 宇树, Figure, etc. |
+| `航天` | 7 | 航天, 火箭, 卫星, SpaceX, 蓝色起源, etc. |
+| `金融` | 7 | 股市, 基金, 黄金, 比特币, 央行, 汇率, etc. |
+| `国际` | 9 | 美国, 俄罗斯, 日本, 乌克兰, 制裁, 关税, etc. |
+
+**Tip:** Use `collect_by_topic("AI")` for the best results - it uses TrendRadar's advanced regex matching for higher accuracy than simple keyword filtering.
 
 ## API Reference
 
@@ -202,9 +272,55 @@ def search_news(
 
 ## Examples
 
+### collect_by_topic()
+
+Collect news by predefined topic (recommended for most use cases).
+
+```python
+def collect_by_topic(
+    topic: str,
+    platforms: List[str] = None,
+    max_items: int = 50,
+) -> Dict:
+    """
+    Collect news by predefined topic/keyword group.
+
+    Args:
+        topic: Topic name - "AI", "科技公司", "芯片半导体", "新能源",
+               "机器人", "航天", "金融", "国际"
+        platforms: Optional list of platform IDs (uses all if None).
+        max_items: Maximum items per platform (default: 50).
+
+    Returns:
+        Same format as collect_news()
+    """
+```
+
+## Examples
+
+### Example 0: Collect by Topic (Recommended)
+
+```python
+import sys
+sys.path.append('/mnt/skills/news-collector/scripts')
+from news_collector import collect_by_topic, list_keyword_groups
+
+# Show available topics
+print(list_keyword_groups())
+
+# Collect AI-related news from all platforms
+result = collect_by_topic("AI")
+print(f"Found {result['total_count']} AI-related news items")
+
+# Collect tech company news from specific platforms
+result = collect_by_topic("科技公司", platforms=["weibo", "36kr", "ithome"])
+```
+
 ### Example 1: Get All Trending Topics
 
 ```python
+import sys
+sys.path.append('/mnt/skills/news-collector/scripts')
 from news_collector import collect_news
 
 # Fetch from all default platforms
@@ -220,6 +336,8 @@ if result["success"]:
 ### Example 2: Filter by Keywords
 
 ```python
+import sys
+sys.path.append('/mnt/skills/news-collector/scripts')
 from news_collector import collect_news
 
 # Only get AI-related news
@@ -236,6 +354,8 @@ for platform_id, platform_data in result["platforms"].items():
 ### Example 3: Combine Platforms and RSS
 
 ```python
+import sys
+sys.path.append('/mnt/skills/news-collector/scripts')
 from news_collector import collect_news, collect_rss
 
 # Get platform news
@@ -260,6 +380,8 @@ print(f"Total: {len(all_items)} items collected")
 ### Example 4: Quick Search
 
 ```python
+import sys
+sys.path.append('/mnt/skills/news-collector/scripts')
 from news_collector import search_news
 
 # Search across all sources
@@ -278,7 +400,11 @@ for item in result["results"]:
 The collector returns JSON-serializable dictionaries that can be easily processed or saved:
 
 ```python
+import sys
+sys.path.append('/mnt/skills/news-collector/scripts')
+
 import json
+from news_collector import collect_news
 
 result = collect_news(platforms=["weibo"])
 
@@ -301,6 +427,10 @@ df = pd.DataFrame(items)
 The collector gracefully handles errors and reports failed sources:
 
 ```python
+import sys
+sys.path.append('/mnt/skills/news-collector/scripts')
+from news_collector import collect_news
+
 result = collect_news(platforms=["weibo", "invalid_platform"])
 
 if result["failed"]:
@@ -311,9 +441,45 @@ if result["platforms"]:
     print(f"Successfully fetched: {list(result['platforms'].keys())}")
 ```
 
+## Best Practices
+
+### Recommended Usage Patterns
+
+```python
+# 1. For general trending news - use all platforms
+result = collect_news()  # 400+ items from 17 platforms
+
+# 2. For topic-specific news - use collect_by_topic (RECOMMENDED)
+result = collect_by_topic("AI")  # Pre-configured regex matching
+
+# 3. For platform-specific content
+result = collect_news(platforms=["v2ex", "juejin"])  # Tech community
+result = collect_news(platforms=["weibo", "zhihu"])  # Social trends
+result = collect_news(platforms=["wallstreetcn-hot", "cls-hot"])  # Finance
+
+# 4. For custom keyword filtering with regex
+result = collect_news(
+    platforms=["weibo", "zhihu", "36kr"],
+    keywords=["/华为|鸿蒙/", "/小米|雷军/", "苹果"]  # Regex patterns
+)
+```
+
+### Platform Selection Guide
+
+| Use Case | Recommended Platforms |
+|----------|----------------------|
+| 社会热点/娱乐 | `weibo`, `douyin`, `bilibili-hot-search` |
+| 科技新闻 | `36kr`, `ithome`, `thepaper` |
+| 程序员社区 | `v2ex`, `juejin`, `github` |
+| 财经资讯 | `wallstreetcn-hot`, `cls-hot`, `36kr` |
+| 问答讨论 | `zhihu`, `tieba` |
+| 综合新闻 | `toutiao`, `baidu`, `ifeng` |
+
 ## Notes
 
 - All timestamps are in China timezone (Asia/Shanghai)
 - Platform availability depends on the NewsNow API
 - RSS feeds require valid feed URLs
 - Network issues will be reported in the `failed` list
+- **This skill accesses platform APIs directly, providing data that web search engines cannot index**
+- For best results, prefer `collect_by_topic()` over manual keyword filtering

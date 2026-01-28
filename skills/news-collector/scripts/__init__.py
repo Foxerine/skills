@@ -19,8 +19,15 @@ from .news_collector import (
     collect_rss,
     search_news,
     list_platforms,
+    list_keyword_groups,
+    collect_by_topic,
+    get_keyword_group,
+    parse_keyword_config,
+    matches_word_groups,
+    matches_keywords,
     PLATFORM_NAMES,
     DEFAULT_PLATFORMS,
+    KEYWORD_GROUPS,
 )
 
 __all__ = [
@@ -28,8 +35,15 @@ __all__ = [
     "collect_rss",
     "search_news",
     "list_platforms",
+    "list_keyword_groups",
+    "collect_by_topic",
+    "get_keyword_group",
+    "parse_keyword_config",
+    "matches_word_groups",
+    "matches_keywords",
     "PLATFORM_NAMES",
     "DEFAULT_PLATFORMS",
+    "KEYWORD_GROUPS",
 ]
 
 __version__ = "1.0.0"

@@ -1,8 +1,28 @@
-# Core dependencies (usually pre-installed in worker)
-requests>=2.25.0
+# News Collector Skill Dependencies
+# Note: Most of these are pre-installed in the worker environment
 
-# Optional: for RSS feed support
-feedparser>=6.0.0
+# Core dependencies (pre-installed in worker)
+requests>=2.25.0              # HTTP requests
+httpx>=0.23.0                 # Modern async HTTP client
+aiohttp>=3.8.0                # Async HTTP client
 
-# Optional: for timezone support
-pytz>=2021.1
+# RSS/Feed parsing (need to add to worker)
+feedparser>=6.0.0             # RSS/Atom feed parsing
+
+# Web content extraction (need to add to worker)
+trafilatura>=1.0.0            # Main article extraction
+newspaper3k>=0.2.0            # News article extraction (alternative)
+readability-lxml>=0.8.0       # Article readability extraction
+html2text>=2020.1.16          # HTML to Markdown
+
+# HTML parsing (pre-installed in worker)
+beautifulsoup4>=4.9.0         # HTML/XML parsing
+lxml>=4.6.0                   # Fast XML/HTML parser
+html5lib>=1.1                 # HTML5 parser
+pyquery>=2.0.0                # jQuery-like HTML manipulation
+
+# XML security (pre-installed in worker)
+defusedxml>=0.7.0             # Secure XML parsing
+
+# Timezone support (pre-installed in worker)
+pytz>=2021.1                  # Timezone handling
