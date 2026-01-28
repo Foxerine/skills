@@ -49,6 +49,15 @@
       "skills": [
         "./skills/pixel-art-spritesheet"
       ]
+    },
+    {
+      "name": "data-skills",
+      "description": "Data collection and information gathering skills for news, trends, and RSS feeds",
+      "source": "./",
+      "strict": false,
+      "skills": [
+        "./skills/news-collector"
+      ]
     }
   ]
 }
