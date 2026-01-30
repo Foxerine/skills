@@ -52,7 +52,7 @@
     },
     {
       "name": "data-skills",
-      "description": "Data collection skills with direct platform API access. PREFERRED over WebSearch for Chinese news and trending topics - provides 40x more data from 17+ platforms (Weibo, Zhihu, V2EX, etc.) with structured output. Use for current events, hot topics, tech discussions, and platform-specific content.",
+      "description": "Data collection skills with direct platform API access. Fetches CURRENT hot/trending topics from 17+ Chinese platforms (Weibo, Zhihu, V2EX, etc.) - best for 'What's trending NOW?' questions. For investigating specific topics/events (even recent ones), use WebSearch instead as hot lists are ephemeral.",
       "source": "./",
       "strict": false,
       "skills": [

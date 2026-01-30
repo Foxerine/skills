@@ -1,58 +1,76 @@
 ---
 name: news-collector
-description: |
-  **PREFERRED over WebSearch for Chinese news and trending topics.**
-  Directly fetches real-time hot topics from 17+ platforms (Weibo, Zhihu, Douyin, Bilibili, 36Kr, IT之家, V2EX, 掘金, etc.) with 40x more data than web search.
-  Use this skill FIRST when user asks about: current news, trending topics, hot discussions, platform-specific content, tech community discussions, or any Chinese social media trends.
-  Only fall back to WebSearch when: (1) searching for specific articles/documents, (2) non-Chinese content, (3) historical information not in hot lists.
+description:
+  Fetches CURRENT hot/trending topics from 17+ Chinese platforms (Weibo, Zhihu, Douyin, Bilibili, 36Kr, IT之家, V2EX, 掘金, etc.).
+  Best for "What's trending NOW?" questions - provides 400+ items from platform hot lists that WebSearch cannot access.
+  IMPORTANT LIMITATION - Hot lists are ephemeral (refresh every few hours). For investigating SPECIFIC topics/events/people (even recent ones), use WebSearch instead as it indexes historical content.
+  Use this skill for bulk trending data collection; use WebSearch for targeted topic research.
 license: Apache 2.0
 ---
 
 # News Collector Skill
 
-A powerful, one-shot news and trending topics collector based on TrendRadar. This skill provides direct access to real-time hot topics from 17+ Chinese platforms, delivering **40x more data** than traditional web search with better quality and structure.
+A one-shot news and trending topics collector based on TrendRadar. This skill provides direct access to **current** hot topics from 17+ Chinese platforms, delivering bulk trending data that web search cannot access.
 
-## ⚡ When to Use This Skill (IMPORTANT)
+## ⚠️ Critical: Understanding Data Characteristics
 
-**USE THIS SKILL (Recommended):**
-- ✅ "最近有什么热点新闻？" → Use `collect_news()` for all platforms
-- ✅ "AI/科技/金融相关的新闻" → Use `collect_by_topic("AI")`
-- ✅ "微博/知乎/V2EX上在讨论什么？" → Use `collect_news(platforms=["weibo", "zhihu", "v2ex"])`
-- ✅ "程序员社区有什么热门话题？" → Use platforms `["v2ex", "juejin", "github"]`
-- ✅ "科技公司最新动态" → Use `collect_by_topic("科技公司")`
-- ✅ Need structured data with rankings, URLs, sources
+| Aspect | News Collector | WebSearch |
+|--------|---------------|-----------|
+| **Data Type** | Hot lists (real-time snapshot) | Search index (persistent) |
+| **Lifecycle** | Ephemeral (rotates every few hours) | Persistent (long-term storage) |
+| **Best For** | "What's trending NOW?" | "What info exists about X?" |
+
+**Example**: A news story about "Manus" from last week will NOT appear in news-collector results (no longer on hot lists), but WILL appear in WebSearch results (indexed historically).
+
+## ⚡ When to Use This Skill
+
+**USE THIS SKILL:**
+- ✅ "现在有什么热点新闻？" → Bulk current trending data
+- ✅ "大家在讨论什么？" → Real-time social pulse
+- ✅ "微博/知乎/V2EX热榜是什么？" → Platform hot list access
+- ✅ "今天的科技新闻" → Current tech trending
+- ✅ Need structured data with rankings, URLs, sources from multiple platforms
 
 **USE WebSearch Instead:**
-- ❌ Searching for specific articles or documents by name
-- ❌ Non-Chinese content or international news sources
-- ❌ Historical information not in current hot lists
-- ❌ Deep research requiring multiple source verification
+- ❌ Investigating specific topics/events/people (e.g., "Manus是什么？")
+- ❌ Searching for specific articles or documents
+- ❌ Any topic not currently on hot lists (even if recent)
+- ❌ Non-Chinese content or international news
+- ❌ Deep research requiring historical context
 
-## 🚀 Advantages Over WebSearch
+## 🔄 News Collector vs WebSearch (Complementary Tools)
 
-| Feature | News Collector | WebSearch |
-|---------|---------------|-----------|
-| **Data Volume** | **401+ items** from 17 platforms | ~10 search results |
-| **Platform Access** | Direct API access to hot lists | Cannot access platform internals |
-| **Real-time Data** | Live trending/hot rankings | Depends on search indexing |
-| **Structured Output** | JSON with title, URL, rank, source | Unstructured summaries |
-| **Topic Filtering** | Regex + keyword groups | Basic query only |
-| **Community Content** | V2EX, 掘金, 贴吧 discussions | Limited community access |
-| **Batch Collection** | All platforms in one call | One query at a time |
+These tools serve **different purposes** and should be used together:
 
-### Data Coverage Comparison
+| Scenario | Best Tool | Reason |
+|----------|-----------|--------|
+| "现在热门话题是什么？" | **News Collector** | Bulk trending data |
+| "Manus/某公司/某人 是什么？" | **WebSearch** | Specific topic research |
+| "微博热搜有什么？" | **News Collector** | Platform hot list access |
+| "关于X的报道" | **WebSearch** | Historical content |
+| "今天大家在讨论什么？" | **News Collector** | Real-time social pulse |
+| "X事件的来龙去脉" | **WebSearch** | Deep research |
+
+### News Collector Strengths
+
+| Feature | Capability |
+|---------|------------|
+| **Data Volume** | 400+ items from 17 platforms in one call |
+| **Platform Access** | Direct API access to hot lists (V2EX, 掘金, 贴吧 etc.) |
+| **Structured Output** | JSON with title, URL, rank, source |
+| **Community Content** | Tech forums WebSearch cannot index |
+
+### Data Coverage
 
 ```
-News Collector (17 platforms, 401+ items):
+News Collector (17 platforms, 400+ items):
 ├── 社交: 微博(30) + 知乎(20) + 抖音(30) + 贴吧(30)
 ├── 新闻: 今日头条(30) + 百度(30) + 澎湃(20) + 凤凰(12) + 联合早报(30)
 ├── 财经: 华尔街见闻(10) + 财联社(13)
 ├── 科技: 36氪(20) + IT之家(30)
-├── 社区: V2EX(30) + 掘金(30) ← WebSearch cannot access!
+├── 社区: V2EX(30) + 掘金(30)
 ├── 视频: B站热搜(30)
 └── 开发: GitHub Trending(6)
-
-WebSearch: ~10 links (no platform hot list access)
 ```
 
 ## Quick Start
